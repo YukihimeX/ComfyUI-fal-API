@@ -1,6 +1,19 @@
 # ComfyUI-fal-API
 
-Custom nodes for using Flux models with  fal API in ComfyUI with only one API Key for all.
+**Custom nodes for using Flux models and other state-of-the-art architectures with the fal API in ComfyUI, using only one API Key for all.**
+
+## 🌟 Latest Updates (SeedBanana Branch)
+This branch introduces major updates to the Fal.ai integration, bringing Google's newest multimodal models and ByteDance's latest Seedream architecture to ComfyUI. 
+
+**New Nodes Added:**
+* **Nano Banana 2 (fal):** Unified node powered by Google's Gemini 3.1 Flash Image. Supports lightning-fast text-to-image, multi-image compositing (up to 14 references), and semantic editing.
+* **Nano Banana Pro Edit (fal):** Premium conversational image editing powered by Gemini 3 Pro Image. Edit and combine reference images using advanced natural language reasoning, bypassing the need for masks. 
+* **Seedream 4.5 Edit (fal):** High-resolution (up to 4K) native image editing using ByteDance's advanced Seedream architecture. 
+* **Seedream 5 Lite Edit (fal):** Ultra-fast, highly efficient 2K image editing for rapid iteration workflows. 
+
+*All new nodes feature automatic native batch-unrolling fixes, customizable safety tolerances, and `enable_safety_checker` overrides.*
+
+---
 
 ## Table of Contents
 
@@ -18,17 +31,18 @@ Custom nodes for using Flux models with  fal API in ComfyUI with only one API Ke
 ## Installation
 
 1. Navigate to your ComfyUI custom nodes directory:
-   ```
+   ```bash
    cd custom_nodes
    ```
 
-2. Clone this repository:
-   ```
-   git clone https://github.com/gokayfem/ComfyUI-fal-API.git
+2. Clone this specific branch repository:
+   ```bash
+   git clone -b SeedBanana --single-branch https://github.com/YukihimeX/ComfyUI-fal-API
    ```
 
-3. Install the required dependencies:
-   ```
+3. Navigate into the folder and install the required dependencies:
+   ```bash
+   cd ComfyUI-fal-API
    pip install -r requirements.txt
    ```
 
@@ -79,9 +93,13 @@ After installation and configuration, restart ComfyUI. The new nodes will be ava
 - **Qwen Image Edit Plus with LoRAs (fal)**: Use Qwen Image Edit Plus with LoRA support to edit images
 - **SeedEdit 3.0 (fal)**: Use SeedEdit 3.0 to edit images
 - **Seedream 4.0 Edit (fal)**: Use Seedream 4.0 to edit images
+- **Seedream 4.5 Edit (fal)**: High-resolution (up to 4K) image editing using ByteDance's v4.5 architecture
+- **Seedream 5 Lite Edit (fal)**: Ultra-fast 2K image editing for rapid iterations
 - **Nano Banana Text-to-Image (fal)**: Use Nano Banana to generate images
 - **Nano Banana Edit (fal)**: Use Nano Banana to edit images
-- **Nano Banana Pro (fal)**: Unified node for both text-to-image and image editing with Nano Banana Pro
+- **Nano Banana 2 (fal)**: Unified text-to-image and semantic multi-image editing powered by Gemini 3.1 Flash Image
+- **Nano Banana Pro (fal)**: Unified node for text-to-image and image editing with Nano Banana Pro
+- **Nano Banana Pro Edit (fal)**: Premium conversational image editing and multi-image compositing powered by Gemini 3 Pro Image
 - **Reve Text-to-Image (fal)**: Use Reve's image model to generate images
 - **Dreamina v3.1 Text-to-Image (fal)**: Use Dreamina v3.1 to generate images
 - **GPT-Image 1.5 (fal)**: High-fidelity text-to-image generation with strong prompt adherence
@@ -145,7 +163,7 @@ After installation and configuration, restart ComfyUI. The new nodes will be ava
     - openai/gpt-4.1
     - openai/gpt-oss-120b
     - meta-llama/llama-4-maverick
-    - custom (Get model name from openrouter)'
+    - custom (Get model name from openrouter)
       
 ### Vision Language Models (VLMs)
 
@@ -165,13 +183,13 @@ If you encounter any errors during installation or usage, try the following:
 
 1. Ensure you have the latest version of ComfyUI installed
 2. Update this custom node package:
-   ```
+   ```bash
    cd custom_nodes/ComfyUI-fal-API
    git pull
    pip install -r requirements.txt
    ```
 3. If you're using ComfyUI Windows Portable, you may need to install fal-client manually:
-   ```
+   ```bash
    ComfyUI_windows_portable>.\python_embeded\python.exe -m pip install fal-client
    ```
 
@@ -186,3 +204,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Support
 
 If you encounter any issues or have questions, please open an issue on the [GitHub repository](https://github.com/gokayfem/ComfyUI-fal-API/issues).
+
+Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+Support
+If you encounter any issues or have questions, please open an issue on the GitHub repository.
