@@ -1,3 +1,16 @@
+## 🌟 Latest Updates (SeedBanana Branch)
+This branch introduces major updates to the Fal.ai integration, bringing Google's newest multimodal models, ByteDance's latest Seedream architecture, and the powerful new Wan 2.7 video and image models to ComfyUI. 
+
+**New Nodes Added:**
+* **Nano Banana 2 (fal):** Unified node powered by Google's Gemini 3.1 Flash Image. Supports lightning-fast text-to-image, multi-image compositing (up to 14 references), and semantic editing.
+* **Nano Banana Pro Edit (fal):** Premium conversational image editing powered by Gemini 3 Pro Image. Edit and combine reference images using advanced natural language reasoning, bypassing the need for masks. 
+* **Seedream 4.5 Edit (fal):** High-resolution (up to 4K) native image editing using ByteDance's advanced Seedream architecture. 
+* **Seedream 5 Lite Edit (fal):** Ultra-fast, highly efficient 2K image editing for rapid iteration workflows. 
+* **Wan 2.7 Image Generation & Editing (fal):** Includes standard and Pro variants for Text-to-Image and Image Editing, delivering premium-quality details, composition, and precise modifications.
+* **Wan 2.7 Video Generation Suite (fal):** A comprehensive suite of the latest generation AI video models including Text-to-Video, Image-to-Video, Reference-to-Video, and Video Editing. Delivers enhanced motion smoothness, superior scene fidelity, and greater visual coherence.
+
+*All new nodes feature automatic native batch-unrolling fixes, customizable safety tolerances, and `enable_safety_checker` overrides.*
+
 # ComfyUI-fal-API
 
 Custom nodes for using Flux models with  fal API in ComfyUI with only one API Key for all.
