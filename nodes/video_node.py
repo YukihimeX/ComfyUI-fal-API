@@ -1644,6 +1644,215 @@ class Veo3Node:
             return ApiHandler.handle_video_generation_error("veo3", str(e))
 
 
+class Wan27TextToVideo:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "aspect_ratio": (["16:9", "9:16", "1:1", "4:3", "3:4"], {"default": "16:9"}),
+                "resolution": (["720p", "1080p"], {"default": "1080p"}),
+                "duration": ("INT", {"default": 5, "min": 2, "max": 15}),
+            },
+            "optional": {
+                "audio_url": ("STRING", {"default": ""}),
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
+                "enable_prompt_expansion": ("BOOLEAN", {"default": True}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "generate_video"
+    CATEGORY = "FAL/VideoGeneration"
+
+    def generate_video(self, prompt, aspect_ratio="16:9", resolution="1080p", duration=5, audio_url="", negative_prompt="", enable_prompt_expansion=True, seed=-1, enable_safety_checker=True):
+        arguments = {
+            "prompt": prompt,
+            "aspect_ratio": aspect_ratio,
+            "resolution": resolution,
+            "duration": duration,
+            "enable_prompt_expansion": enable_prompt_expansion,
+            "enable_safety_checker": enable_safety_checker,
+        }
+
+        if audio_url:
+            arguments["audio_url"] = audio_url
+        if negative_prompt:
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1:
+            arguments["seed"] = seed
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/text-to-video", arguments)
+            video_url = result["video"]["url"]
+            return (video_url,)
+        except Exception as e:
+            return ApiHandler.handle_video_generation_error("Wan 2.7 Text-to-Video", e)
+
+
+class Wan27ReferenceToVideo:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "aspect_ratio": (["16:9", "9:16", "1:1", "4:3", "3:4"], {"default": "16:9"}),
+                "resolution": (["720p", "1080p"], {"default": "1080p"}),
+                "duration": ("INT", {"default": 5, "min": 2, "max": 10}),
+            },
+            "optional": {
+                "reference_image_1": ("IMAGE",),
+                "reference_images": ("IMAGE", {"default": None, "multiple": True}),
+                "reference_video_url": ("STRING", {"default": ""}),
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
+                "multi_shots": ("BOOLEAN", {"default": False}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "generate_video"
+    CATEGORY = "FAL/VideoGeneration"
+
+    def generate_video(self, prompt, aspect_ratio="16:9", resolution="1080p", duration=5, reference_image_1=None, reference_images=None, reference_video_url="", negative_prompt="", multi_shots=False, seed=-1, enable_safety_checker=True):
+        arguments = {
+            "prompt": prompt,
+            "aspect_ratio": aspect_ratio,
+            "resolution": resolution,
+            "duration": duration,
+            "multi_shots": multi_shots,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if negative_prompt: 
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1: 
+            arguments["seed"] = seed
+
+        singleImages = ImageUtils.prepare_images([reference_image_1]) if reference_image_1 is not None else []
+        batchImages = ImageUtils.prepare_images(reference_images) if reference_images is not None else []
+        image_urls = singleImages + batchImages
+
+        if image_urls:
+            arguments["reference_image_urls"] = image_urls
+        if reference_video_url:
+            arguments["reference_video_urls"] = [reference_video_url]
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/reference-to-video", arguments)
+            video_url = result["video"]["url"]
+            return (video_url,)
+        except Exception as e:
+            return ApiHandler.handle_video_generation_error("Wan 2.7 Reference-to-Video", e)
+
+
+class Wan27ImageToVideo:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "resolution": (["720p", "1080p"], {"default": "1080p"}),
+                "duration": ("INT", {"default": 5, "min": 2, "max": 15}),
+            },
+            "optional": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "image": ("IMAGE",),
+                "end_image": ("IMAGE",),
+                "video_url": ("STRING", {"default": ""}),
+                "audio_url": ("STRING", {"default": ""}),
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
+                "enable_prompt_expansion": ("BOOLEAN", {"default": True}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "generate_video"
+    CATEGORY = "FAL/VideoGeneration"
+
+    def generate_video(self, resolution="1080p", duration=5, prompt="", image=None, end_image=None, video_url="", audio_url="", negative_prompt="", enable_prompt_expansion=True, seed=-1, enable_safety_checker=True):
+        arguments = {
+            "resolution": resolution,
+            "duration": duration,
+            "enable_prompt_expansion": enable_prompt_expansion,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if prompt: arguments["prompt"] = prompt
+        if negative_prompt: arguments["negative_prompt"] = negative_prompt
+        if seed != -1: arguments["seed"] = seed
+        if video_url: arguments["video_url"] = video_url
+        if audio_url: arguments["audio_url"] = audio_url
+
+        if image is not None:
+            url = ImageUtils.upload_image(image)
+            if url: arguments["image_url"] = url
+        if end_image is not None:
+            url = ImageUtils.upload_image(end_image)
+            if url: arguments["end_image_url"] = url
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/image-to-video", arguments)
+            video_url = result["video"]["url"]
+            return (video_url,)
+        except Exception as e:
+            return ApiHandler.handle_video_generation_error("Wan 2.7 Image-to-Video", e)
+
+
+class Wan27EditVideo:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "video_url": ("STRING", {"default": ""}),
+                "resolution": (["720p", "1080p"], {"default": "1080p"}),
+                "duration": ("INT", {"default": 0, "min": 0, "max": 10}),
+                "audio_setting": (["auto", "origin"], {"default": "auto"}),
+            },
+            "optional": {
+                "reference_image": ("IMAGE",),
+                "aspect_ratio": (["auto", "16:9", "9:16", "1:1", "4:3", "3:4"], {"default": "auto"}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("STRING",)
+    FUNCTION = "generate_video"
+    CATEGORY = "FAL/VideoGeneration"
+
+    def generate_video(self, prompt, video_url, resolution="1080p", duration=0, audio_setting="auto", reference_image=None, aspect_ratio="auto", seed=-1, enable_safety_checker=True):
+        arguments = {
+            "prompt": prompt,
+            "video_url": video_url,
+            "resolution": resolution,
+            "duration": duration,
+            "audio_setting": audio_setting,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if aspect_ratio != "auto":
+            arguments["aspect_ratio"] = aspect_ratio
+        if seed != -1:
+            arguments["seed"] = seed
+
+        if reference_image is not None:
+            url = ImageUtils.upload_image(reference_image)
+            if url: arguments["reference_image_url"] = url
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/edit-video", arguments)
+            video_url = result["video"]["url"]
+            return (video_url,)
+        except Exception as e:
+            return ApiHandler.handle_video_generation_error("Wan 2.7 Edit Video", e)
+
+
 # Update Node class mappings
 NODE_CLASS_MAPPINGS = {
     "Kling_fal": KlingNode,
@@ -1669,8 +1878,11 @@ NODE_CLASS_MAPPINGS = {
     "Wan2214b_animate_move_character_fal": Wan2214bAnimateMoveNode,
     "SeedanceImageToVideo_fal": SeedanceImageToVideoNode,
     "SeedanceTextToVideo_fal": SeedanceTextToVideoNode,
-    "Veo3_fal": Veo3Node
-    
+    "Veo3_fal": Veo3Node,
+    "Wan27TextToVideo_fal": Wan27TextToVideo,
+    "Wan27ReferenceToVideo_fal": Wan27ReferenceToVideo,
+    "Wan27ImageToVideo_fal": Wan27ImageToVideo,
+    "Wan27EditVideo_fal": Wan27EditVideo,
 }
 
 # Update Node display name mappings
@@ -1698,5 +1910,9 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Wan25_preview_fal": "Wan 2.5 Preview Image-to-Video (fal)",
     "WanVACEVideoEdit_fal": "Wan VACE Video Edit (fal)",
     "Wan2214b_animate_replace_character_fal": "Wan 2.2 14b Animate: Replace Character (fal)",
-    "Wan2214b_animate_move_character_fal": "Wan 2.2 14b Animate: Move Character (fal)"
+    "Wan2214b_animate_move_character_fal": "Wan 2.2 14b Animate: Move Character (fal)",
+    "Wan27TextToVideo_fal": "Wan 2.7 Text-to-Video (fal)",
+    "Wan27ReferenceToVideo_fal": "Wan 2.7 Reference-to-Video (fal)",
+    "Wan27ImageToVideo_fal": "Wan 2.7 Image-to-Video (fal)",
+    "Wan27EditVideo_fal": "Wan 2.7 Edit Video (fal)",
 }
