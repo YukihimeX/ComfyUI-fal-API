@@ -1954,6 +1954,8 @@ class SeedreamV45Edit:
             return ResultProcessor.process_image_result(result)
         except Exception as e:
             return ApiHandler.handle_image_generation_error(model_name, e)
+
+
 # https://fal.ai/api/openapi/queue/openapi.json?endpoint_id=fal-ai/bytedance/seedream/v5/lite/edit
 class SeedreamV5LiteEdit:
     @classmethod
@@ -2079,6 +2081,7 @@ class SeedreamV5LiteEdit:
             return ResultProcessor.process_image_result(result)
         except Exception as e:
             return ApiHandler.handle_image_generation_error(model_name, e)
+
 
 class NanoBananaTextToImage:
     @classmethod
@@ -2662,6 +2665,186 @@ class GPTImage15:
             return ApiHandler.handle_image_generation_error("GPT-Image 1.5", e)
 
 
+class Wan27ProTextToImage:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "image_size": (
+                    [
+                        "square_hd", "square", "portrait_4_3", "portrait_16_9",
+                        "landscape_4_3", "landscape_16_9", "custom",
+                    ],
+                    {"default": "square_hd"},
+                ),
+                "width": ("INT", {"default": 1024, "min": 512, "max": 4096, "step": 16}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 4096, "step": 16}),
+            },
+            "optional": {
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
+                "max_images": ("INT", {"default": 1, "min": 1, "max": 5}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate_image"
+    CATEGORY = "FAL/Image"
+
+    def generate_image(self, prompt, image_size, width=1024, height=1024, negative_prompt="", max_images=1, seed=-1, enable_safety_checker=True):
+        arguments = {
+            "prompt": prompt,
+            "max_images": max_images,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if image_size == "custom":
+            arguments["image_size"] = {"width": width, "height": height}
+        else:
+            arguments["image_size"] = image_size
+
+        if negative_prompt:
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1:
+            arguments["seed"] = seed
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/pro/text-to-image", arguments)
+            return ResultProcessor.process_image_result(result)
+        except Exception as e:
+            return ApiHandler.handle_image_generation_error("Wan 2.7 Pro Text-to-Image", e)
+
+
+class Wan27TextToImage(Wan27ProTextToImage):
+    def generate_image(self, prompt, image_size, width=1024, height=1024, negative_prompt="", max_images=1, seed=-1, enable_safety_checker=True):
+        arguments = {
+            "prompt": prompt,
+            "max_images": max_images,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if image_size == "custom":
+            arguments["image_size"] = {"width": width, "height": height}
+        else:
+            arguments["image_size"] = image_size
+
+        if negative_prompt:
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1:
+            arguments["seed"] = seed
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/text-to-image", arguments)
+            return ResultProcessor.process_image_result(result)
+        except Exception as e:
+            return ApiHandler.handle_image_generation_error("Wan 2.7 Text-to-Image", e)
+
+
+class Wan27ProEdit:
+    @classmethod
+    def INPUT_TYPES(cls):
+        return {
+            "required": {
+                "prompt": ("STRING", {"default": "", "multiline": True}),
+                "image_1": ("IMAGE",),
+            },
+            "optional": {
+                "image_2": ("IMAGE",),
+                "image_3": ("IMAGE",),
+                "image_4": ("IMAGE",),
+                "images": ("IMAGE", {"default": None, "multiple": True}),
+                "image_size": (
+                    [
+                        "square_hd", "square", "portrait_4_3", "portrait_16_9",
+                        "landscape_4_3", "landscape_16_9", "custom",
+                    ],
+                    {"default": "square_hd"},
+                ),
+                "width": ("INT", {"default": 1024, "min": 512, "max": 4096, "step": 16}),
+                "height": ("INT", {"default": 1024, "min": 512, "max": 4096, "step": 16}),
+                "negative_prompt": ("STRING", {"default": "", "multiline": True}),
+                "num_images": ("INT", {"default": 1, "min": 1, "max": 4}),
+                "enable_prompt_expansion": ("BOOLEAN", {"default": True}),
+                "seed": ("INT", {"default": -1}),
+                "enable_safety_checker": ("BOOLEAN", {"default": True}),
+            },
+        }
+
+    RETURN_TYPES = ("IMAGE",)
+    FUNCTION = "generate_image"
+    CATEGORY = "FAL/Image"
+
+    def generate_image(self, prompt, image_1, image_2=None, image_3=None, image_4=None, images=None, image_size="square_hd", width=1024, height=1024, negative_prompt="", num_images=1, enable_prompt_expansion=True, seed=-1, enable_safety_checker=True):
+        singleImages = ImageUtils.prepare_images([image_1, image_2, image_3, image_4])
+        batchImages = ImageUtils.prepare_images(images) if images is not None else []
+        image_urls = singleImages + batchImages
+
+        if len(image_urls) == 0:
+            print("Error: No images provided for Wan 2.7 Pro Edit")
+            return ResultProcessor.create_blank_image()
+
+        arguments = {
+            "prompt": prompt,
+            "image_urls": image_urls,
+            "num_images": num_images,
+            "enable_prompt_expansion": enable_prompt_expansion,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if image_size == "custom":
+            arguments["image_size"] = {"width": width, "height": height}
+        else:
+            arguments["image_size"] = image_size
+
+        if negative_prompt:
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1:
+            arguments["seed"] = seed
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/pro/edit", arguments)
+            return ResultProcessor.process_image_result(result)
+        except Exception as e:
+            return ApiHandler.handle_image_generation_error("Wan 2.7 Pro Edit", e)
+
+
+class Wan27Edit(Wan27ProEdit):
+    def generate_image(self, prompt, image_1, image_2=None, image_3=None, image_4=None, images=None, image_size="square_hd", width=1024, height=1024, negative_prompt="", num_images=1, enable_prompt_expansion=True, seed=-1, enable_safety_checker=True):
+        singleImages = ImageUtils.prepare_images([image_1, image_2, image_3, image_4])
+        batchImages = ImageUtils.prepare_images(images) if images is not None else []
+        image_urls = singleImages + batchImages
+
+        if len(image_urls) == 0:
+            print("Error: No images provided for Wan 2.7 Edit")
+            return ResultProcessor.create_blank_image()
+
+        arguments = {
+            "prompt": prompt,
+            "image_urls": image_urls,
+            "num_images": num_images,
+            "enable_prompt_expansion": enable_prompt_expansion,
+            "enable_safety_checker": enable_safety_checker,
+        }
+        
+        if image_size == "custom":
+            arguments["image_size"] = {"width": width, "height": height}
+        else:
+            arguments["image_size"] = image_size
+
+        if negative_prompt:
+            arguments["negative_prompt"] = negative_prompt
+        if seed != -1:
+            arguments["seed"] = seed
+
+        try:
+            result = ApiHandler.submit_and_get_result("fal-ai/wan/v2.7/edit", arguments)
+            return ResultProcessor.process_image_result(result)
+        except Exception as e:
+            return ApiHandler.handle_image_generation_error("Wan 2.7 Edit", e)
+
+
 # Node class mappings
 NODE_CLASS_MAPPINGS = {
     "Ideogramv3_fal": Ideogramv3,
@@ -2695,6 +2878,10 @@ NODE_CLASS_MAPPINGS = {
     "Dreamina31TextToImage_fal": Dreamina31TextToImage,
     "GPTImage15Edit_fal": GPTImage15Edit,
     "GPTImage15_fal": GPTImage15,
+    "Wan27ProTextToImage_fal": Wan27ProTextToImage,
+    "Wan27ProEdit_fal": Wan27ProEdit,
+    "Wan27TextToImage_fal": Wan27TextToImage,
+    "Wan27Edit_fal": Wan27Edit,
 }
 
 
@@ -2731,4 +2918,8 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "Dreamina31TextToImage_fal": "Dreamina v3.1 Text-to-Image (fal)",
     "GPTImage15Edit_fal": "GPT-Image 1.5 Edit (fal)",
     "GPTImage15_fal": "GPT-Image 1.5 (fal)",
+    "Wan27ProTextToImage_fal": "Wan 2.7 Pro Text-to-Image (fal)",
+    "Wan27ProEdit_fal": "Wan 2.7 Pro Edit (fal)",
+    "Wan27TextToImage_fal": "Wan 2.7 Text-to-Image (fal)",
+    "Wan27Edit_fal": "Wan 2.7 Edit (fal)",
 }
