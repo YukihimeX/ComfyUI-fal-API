@@ -1,3 +1,8 @@
+Clone my specific [branch](https://github.com/YukihimeX/ComfyUI-fal-API/tree/SeedBanana) repository:
+   ```bash
+   git clone -b SeedBanana --single-branch https://github.com/YukihimeX/ComfyUI-fal-API
+   ```
+
 ## 🌟 Latest Updates (SeedBanana Branch)
 This branch introduces major updates to the Fal.ai integration, bringing Google's newest multimodal models, ByteDance's latest Seedream architecture, and the powerful new Wan 2.7 video and image models to ComfyUI. 
 
